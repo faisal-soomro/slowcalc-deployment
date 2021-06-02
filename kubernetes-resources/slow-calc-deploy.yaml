@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: slow-calc
+  name: slow-calc-deploy
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: slow-calc
+  template:
+    metadata:
+      labels:
+        app: slow-calc
+    spec:
+      containers:
+      - image: faisalsoomro/slowcalc:v2.1
+        name: slow-calc
+        resources: {}
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 80
+          initialDelaySeconds: 3
+          periodSeconds: 3
