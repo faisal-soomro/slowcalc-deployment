@@ -1,0 +1,132 @@
+#!/usr/bin/env bash
+set -e
+set -u
+
+
+# global variables
+heart="/tmp/heart.beat"
+
+
+# funky
+function crlf { printf '%s\r\n' "$*"; }
+function println { printf '%s\n' "$*"; }
+
+
+# setup
+exec 2>>/dev/shm/log.fifo
+function log { println "($$) $*" >&2; }
+
+
+# pidfiles
+pids='/dev/shm/calcpids'
+mkdir -p "$pids"
+pidfile="${pids}/$$"
+
+
+# are we dead?
+function timeleft
+{
+	local deadtime
+	read -r deadtime </dev/shm/deadtime
+	println "$(( deadtime - $(date +'%s') ))"
+}
+
+
+# responding to requests
+function headers
+{
+	rm "$pidfile" 2>/dev/null || :
+	trap - EXIT
+	crlf	"Status: $*"
+	crlf	"Content-Type: text/plain; charset=utf-8"
+}
+function respond
+{
+	headers "$*"
+	crlf ""
+}
+
+
+# default panic response
+function panic
+{
+	respond "500 Unknown Server Error"
+	println "Something went horribly wrong.<br />Don't worry about it."
+}
+trap panic EXIT
+
+
+# health checking
+function heartbeat { date >"$heart"; }
+function healthy { [[ -e "$heart" ]] && (( $(dmtime "$heart") <= 300 )); }
+
+
+
+# vim: tabstop=4:softtabstop=4:shiftwidth=4:noexpandtab
+bash-5.1# vi common.src 
+bash-5.1# cat common.src 
+#!/usr/bin/env bash
+set -e
+set -u
+
+
+# global variables
+heart="/tmp/heart.beat"
+
+
+# funky
+function crlf { printf '%s\r\n' "$*"; }
+function println { printf '%s\n' "$*"; }
+
+
+# setup
+exec 2>>/dev/shm/log.fifo
+function log { println "($$) $*" >&2; }
+
+
+# pidfiles
+pids='/dev/shm/calcpids'
+mkdir -p "$pids"
+pidfile="${pids}/$$"
+
+
+# are we dead?
+function timeleft
+{
+	local deadtime
+	read -r deadtime </dev/shm/deadtime
+	println "$(( deadtime - $(date +'%s') ))"
+}
+
+
+# responding to requests
+function headers
+{
+	rm "$pidfile" 2>/dev/null || :
+	trap - EXIT
+	crlf	"Status: $*"
+	crlf	"Content-Type: text/plain; charset=utf-8"
+}
+function respond
+{
+	headers "$*"
+	crlf ""
+}
+
+
+# default panic response
+function panic
+{
+	respond "500 Unknown Server Error"
+	println "Something went horribly wrong.<br />Don't worry about it."
+}
+trap panic EXIT
+
+
+# health checking
+function heartbeat { date >"$heart"; }
+function healthy { [[ -e "$heart" ]] && (( $(dmtime "$heart") <= 300 )); }
+
+
+
+# vim: tabstop=4:softtabstop=4:shiftwidth=4:noexpandtab

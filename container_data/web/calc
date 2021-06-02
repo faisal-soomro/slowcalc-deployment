@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+source /usr/local/bin/common.src
+
+
+# healthy?
+# if ! timeleft=$(timeleft) || (( timeleft < 0 )); then
+# 	respond "500 Internal Server Error"
+# 	println "She's dead, Jim!"
+# 	exit 0
+# fi
+
+
+case "$REQUEST_METHOD" in
+	POST)
+		delay=$(( RANDOM % 5 + 10 ))
+		read -r query < <(timeout 30 head -c "${CONTENT_LENGTH:-0}") || :
+		if
+			[[ -n "$query" ]] &&
+			result=$(bc -l <<<"$query" 2>/dev/null) &&
+			[[ -n "$result" ]]
+		then
+			log "Query: $query"
+			# log "Delay: $delay seconds"
+			touch "$pidfile"
+			read -r count < <(find "$pids" -type f -printf '1' | wc -c)
+			log "Worker threads: $count"
+			# for (( i=0; i<count; i++ )); do
+			# 	# doing useless work, causing CPU load
+			# 	( for (( i=0; SECONDS <= delay; i++ )); do :; done ) &
+			# done
+			wait
+			log "Return: $result"
+			respond "200 OK"
+			println "Result: $result"
+			exit 0
+		fi
+		respond "400 Bad Request"
+		println "I didn't like that."
+		println "Server will remember this."
+		exit 0
+	;;
+	*)
+		respond "400 Bad Request"
+		println "Please give me an math problem, such as 2*2"
+		exit 0
+	;;
+esac
+
+
+
+# vim: tabstop=4:softtabstop=4:shiftwidth=4:noexpandtab
+

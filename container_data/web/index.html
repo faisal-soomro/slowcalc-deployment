@@ -1,0 +1,17 @@
+<html>
+<head><title>Hello</title></head>
+<body>
+<pre>
+Hey there.
+If you got to this point, the service is running.
+
+There are two endpoints here:
+  /health
+    GET this to determine the health of the service. It will reply 200 OK if everything is fine.
+  /calc
+    POST to this to perform a calculation. It is slow.
+    curl --data "2*2" http://localhost/calc
+</pre>
+</body>
+</html>
+

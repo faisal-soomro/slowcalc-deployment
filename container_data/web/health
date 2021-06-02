@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+source /usr/local/bin/common.src
+
+
+# GET only
+if [[ "${REQUEST_METHOD:-}" != "GET" ]]; then
+	respond "400 Bad Request"
+	println "Naughty naughty..."
+	exit 0
+fi
+
+
+# healthy?
+# if ! timeleft=$(timeleft) || (( timeleft < 0 )); then
+# 	respond "500 Internal Server Error"
+# 	println "She's dead, Jim!"
+# 	exit 0
+# fi
+
+
+# yes!
+respond "200 OK"
+println "I'm still alive!"
+# println "Will die in $timeleft seconds."
+exit 0
+
+
+
+# vim: tabstop=4:softtabstop=4:shiftwidth=4:noexpandtab
+

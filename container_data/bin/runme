@@ -1,0 +1,38 @@
+#!/bin/bash
+set -eu
+
+
+# log reader/printer
+(
+	fifo="/dev/shm/log.fifo"
+	mkfifo -m 777 "$fifo"
+	exec {fd}<>"$fifo"
+	while read -u "$fd" -r line; do
+		printf '%s\n' "$line"
+	done
+) & disown
+
+
+# deadtime
+lifetime=$(( RANDOM % 120 + 300 ))
+deadtime=$(( $(date +'%s') + lifetime ))
+echo "$deadtime" >/dev/shm/deadtime
+echo "Will die in $lifetime seconds..."
+
+
+# launch webserver
+echo "Listening"
+log="/dev/null"
+exec thttpd \
+	-p 80 \
+	-l "$log" \
+	-d /web \
+	-u user \
+	-c "**" \
+	-nos \
+	-D
+
+
+
+# vim: tabstop=4:softtabstop=4:shiftwidth=4:noexpandtab
+
